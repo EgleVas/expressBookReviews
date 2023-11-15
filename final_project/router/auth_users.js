@@ -58,16 +58,35 @@ regd_users.put("/auth/review/:isbn", (req, res) => {
             const reviews = book.reviews;
             if (reviews){
                 const review = reviews[username];
-                if (review){
-                    reviews[username] = userReview;
+                reviews[username] = userReview;
+                if (review){                    
                     return res.status(200).json({message: `User's ${username} review for the book with the isin ${isbn} has been updated.`});
-                } else {
-                    reviews[username] = userReview;
+                } else {                    
                     return res.status(200).json({message: `User's ${username} review for the book with the isin ${isbn} has been added.`});
                 }
             }
         } else {
             res.send("Unable to add a review!");
+        }
+    } else {
+        res.send("Unable to find book!");
+    }
+});
+
+
+// Delete a book review
+regd_users.delete("/auth/review/:isbn", (req, res) => {
+    const isbn = req.params.isbn;
+    const username = req.session.authorization.username;     
+    let book = books[isbn];
+    if (book) {
+        let reviews = book.reviews;
+        const userReview = reviews[username];
+        if (userReview){
+            delete reviews[username];
+            return res.status(200).json({message: `User's ${username} review for the book with the isin ${isbn} has been deleted.`});
+        } else {
+            res.send("Unable to find a review!");
         }
     } else {
         res.send("Unable to find book!");
